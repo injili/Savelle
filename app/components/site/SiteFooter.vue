@@ -11,7 +11,7 @@ const tbc = (v: string) => v || (showDrafts ? '[TBC]' : '')
   <footer class="on-ink relative z-[31] bg-ink text-paper">
     <div class="shell grid-12 gap-y-12 pb-6 pt-16 md:pt-24">
       <div class="col-span-12 md:col-span-5">
-        <LogoMark class="w-[min(70vw,28rem)] text-paper" title="Savelle Group Africa logo" />
+        <LogoMark class="w-[min(70vw,28rem)] text-white" title="Savelle Group Africa logo" />
       </div>
 
       <div class="col-span-12 grid grid-cols-2 gap-y-10 md:col-span-7 md:grid-cols-3">

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-usePageSeo('home')
+usePageSeo("home");
 </script>
 
 <template>
-  <div>
-    <HeroSection />
-    <IntroSection />
-    <CapabilitiesSection />
-    <ApproachCardsSection />
-    <WhySavelleSection />
-    <FeaturedWorkSection />
-    <InsightsPreviewSection />
-    <ClosingCtaSection />
-  </div>
+	<div>
+		<HeroSection />
+		<IntroSection />
+		<CapabilitiesSection />
+		<!-- <ApproachCardsSection /> -->
+		<WhySavelleSection />
+		<FeaturedWorkSection />
+		<!-- <InsightsPreviewSection /> -->
+		<ClosingCtaSection />
+	</div>
 </template>

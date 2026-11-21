@@ -14,11 +14,11 @@ const hideMenuButton = computed(() => useHeroNavInView().value && !menuOpen.valu
 
     <NuxtLink
       to="/"
-      class="pointer-events-auto flex h-[var(--control-h)] min-w-[var(--control-h)] items-center justify-center gap-3 bg-ink px-[calc((var(--control-h)-1.75rem)/2)] text-paper sm:pr-4 ring-1 ring-paper/20 transition-colors hover:bg-white hover:text-ink hover:ring-ink"
+      class="pointer-events-auto flex h-[var(--control-h)] items-center justify-center bg-ink px-4 text-white ring-1 ring-paper/20 transition-colors hover:bg-white hover:text-ink hover:ring-ink"
       :aria-label="`${site.name}: home`"
     >
-      <LogoMark class="size-7" />
-      <span class="label hidden sm:inline" aria-hidden="true">{{ site.wordmark }}</span>
+      <!-- Wordmark: white on the blue button, blue when it flips to white on hover -->
+      <LogoMark class="h-4 w-auto" />
     </NuxtLink>
 
     <div class="pointer-events-auto flex items-stretch gap-1">

@@ -12,7 +12,7 @@ const colB = sentences.slice(2).join("").trim();
 
 <template>
 	<section
-		class="on-ink bg-ink py-6 text-paper md:pb-8 md:pt-2"
+		class="on-ink bg-ink py-6 text-paper [--rule:var(--color-paper)] md:pb-8 md:pt-2"
 		aria-labelledby="intro-title"
 	>
 		<div class="shell">
@@ -24,12 +24,12 @@ const colB = sentences.slice(2).join("").trim();
 					class="col-span-12 grid gap-8 sm:grid-cols-2 md:col-span-6 md:col-start-6 md:mt-8"
 				>
 					<p
-						class="label rule-l pl-4 normal-case !tracking-normal leading-relaxed text-paper/85"
+						class="label rule-l pl-4"
 					>
 						{{ colA }}
 					</p>
 					<p
-						class="label rule-l pl-4 normal-case !tracking-normal leading-relaxed text-paper/85"
+						class="label rule-l pl-4"
 					>
 						{{ colB }}
 					</p>

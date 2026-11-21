@@ -1,40 +1,24 @@
 <script setup lang="ts">
 /**
- * PLACEHOLDER LOGO MARK — replace this single component with the real logo.
- * Concept: six nodes on a ring, joined by thin lines, around a central node
- * (a connected system). Inherits colour from `currentColor`.
+ * Logo: the SAVELLE wordmark (client-supplied SAVELLE.svg). Drawn in `currentColor`,
+ * so it is blue on white backgrounds and white on blue ones: set the colour on the
+ * parent (e.g. `text-ink` / `text-white`). Size it by height; width follows (256 : 88).
  */
-withDefaults(defineProps<{ title?: string, strokeWidth?: number }>(), {
-  title: '',
-  strokeWidth: 1.5,
-})
-
-const R = 36
-const nodes = Array.from({ length: 6 }, (_, i) => {
-  const a = (Math.PI / 3) * i - Math.PI / 2
-  return { x: 50 + R * Math.cos(a), y: 50 + R * Math.sin(a) }
-})
-// ring edges + three chords + spokes from the centre to alternating nodes
-const edges: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0], [0, 2], [2, 4], [4, 0]]
-const spokes = [1, 3, 5]
+withDefaults(defineProps<{ title?: string }>(), { title: '' })
 </script>
 
 <template>
   <svg
-    viewBox="0 0 100 100"
+    viewBox="0 0 256 88"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     :role="title ? 'img' : undefined"
     :aria-label="title || undefined"
     :aria-hidden="title ? undefined : 'true'"
   >
-    <g stroke="currentColor" :stroke-width="strokeWidth" stroke-linecap="round" vector-effect="non-scaling-stroke">
-      <line v-for="([a, b], i) in edges" :key="`e${i}`" :x1="nodes[a]!.x" :y1="nodes[a]!.y" :x2="nodes[b]!.x" :y2="nodes[b]!.y" vector-effect="non-scaling-stroke" />
-      <line v-for="s in spokes" :key="`s${s}`" x1="50" y1="50" :x2="nodes[s]!.x" :y2="nodes[s]!.y" vector-effect="non-scaling-stroke" />
-    </g>
-    <g fill="currentColor">
-      <circle v-for="(n, i) in nodes" :key="`n${i}`" :cx="n.x" :cy="n.y" r="6" />
-      <circle cx="50" cy="50" r="8.5" />
-    </g>
+    <path
+      fill="currentColor"
+      d="M22.168 87.5C14.3229 87.5 8.65885 85.5469 5.17578 81.6406C1.72526 77.7344 0 71.5169 0 62.9883V54.5898H16.9922V65.332C16.9922 67.3177 17.2852 68.8802 17.8711 70.0195C18.4896 71.1263 19.5475 71.6797 21.0449 71.6797C22.6074 71.6797 23.6816 71.224 24.2676 70.3125C24.8861 69.401 25.1953 67.9036 25.1953 65.8203C25.1953 63.1836 24.9349 60.9863 24.4141 59.2285C23.8932 57.4381 22.9818 55.7454 21.6797 54.1504C20.4102 52.5228 18.6361 50.6348 16.3574 48.4863L8.64258 41.1621C2.88086 35.7259 0 29.5085 0 22.5098C0 15.1855 1.69271 9.60286 5.07812 5.76172C8.49609 1.92057 13.4277 0 19.873 0C27.7507 0 33.3333 2.09961 36.6211 6.29883C39.9414 10.498 41.6016 16.8783 41.6016 25.4395H24.1211V19.5312C24.1211 18.3594 23.7793 17.4479 23.0957 16.7969C22.4447 16.1458 21.5495 15.8203 20.4102 15.8203C19.043 15.8203 18.0339 16.2109 17.3828 16.9922C16.7643 17.7409 16.4551 18.7174 16.4551 19.9219C16.4551 21.1263 16.7806 22.4284 17.4316 23.8281C18.0827 25.2279 19.3685 26.8392 21.2891 28.6621L31.2012 38.1836C33.1868 40.0716 35.0098 42.0736 36.6699 44.1895C38.3301 46.2728 39.6647 48.7142 40.6738 51.5137C41.6829 54.2806 42.1875 57.666 42.1875 61.6699C42.1875 69.7428 40.6901 76.0742 37.6953 80.6641C34.7331 85.2214 29.5573 87.5 22.168 87.5ZM38.6055 86.7188L46.9062 0.78125H76.0566L84.2109 86.7188H67.9512L66.7305 72.8516H56.3789L55.3047 86.7188H38.6055ZM57.5996 59.1309H65.4121L61.6523 15.4297H60.8711L57.5996 59.1309ZM88.2461 86.7188L77.6504 0.732422H94.0078L100.307 59.2285L105.922 0.732422H122.279L111.684 86.7188H88.2461ZM120.309 86.7188V0.78125H154.684V17.3828H137.789V34.1309H154V50.293H137.789V69.9707H155.807V86.7188H120.309ZM154.52 86.7188V0.78125H171.707V72.0703H189.383V86.7188H154.52ZM187.266 86.7188V0.78125H204.453V72.0703H222.129V86.7188H187.266ZM220.012 86.7188V0.78125H254.387V17.3828H237.492V34.1309H253.703V50.293H237.492V69.9707H255.51V86.7188H220.012Z"
+    />
   </svg>
 </template>

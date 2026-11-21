@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { gsap } from 'gsap'
-import { site } from '~~/data/site'
 
 const root = ref<HTMLElement | null>(null)
 const visible = ref(true)
@@ -33,16 +32,13 @@ onMounted(async () => {
     class="site-loader fixed inset-0 z-[90] flex items-center justify-center bg-ink text-paper"
     aria-hidden="true"
   >
-    <div data-loader-inner class="flex flex-col items-center gap-5">
-      <LogoMark class="loader-mark size-16" />
-      <p class="label">{{ site.wordmark }}</p>
+    <div data-loader-inner class="flex flex-col items-center">
+      <LogoMark class="h-8 w-auto text-white" />
     </div>
   </div>
 </template>
 
 <style scoped>
-.loader-mark { animation: loader-spin 2.4s linear infinite; }
-@keyframes loader-spin { to { transform: rotate(60deg); } }
 /* Failsafe: never block content for long, even if hydration is slow or fails */
 .site-loader { animation: loader-failsafe 0.4s ease 6s forwards; }
 @keyframes loader-failsafe { to { opacity: 0; visibility: hidden; } }

@@ -126,11 +126,14 @@ export const site = {
     hero: {
       headlineLines: ['Understanding systems.', 'Anticipating change.'],
       tagline: 'Shaping what comes next.',
-      // B2 hero body, verbatim; each paragraph is paired with one of the B2 hero buttons
-      body: [
-        'Savelle Group Africa is a strategy, systems and intelligence advisory firm. We work with organisations, institutions and businesses to make sense of complex environments, strengthen the systems they depend on and turn evidence into decisions that move them forward.',
-        'We bring together systems thinking, strategic advisory, foresight, research and data to help leaders see beyond immediate challenges and build for the long term.',
-      ],
+      // Small mono details around the hero (labels only, no new claims)
+      eyebrow: ['Strategy', 'Systems', 'Intelligence'],
+      descriptor: 'Advisory for organisations, institutions and businesses across Africa',
+      figure: { label: 'Fig. 01' },
+      // The five disciplines named in the second body paragraph
+      disciplines: ['Systems thinking', 'Strategic advisory', 'Foresight', 'Research', 'Data'],
+      // B2 hero body, condensed from its two paragraphs into one (spans both columns)
+      body: 'Savelle Group Africa is a strategy, systems and intelligence advisory firm. We bring together systems thinking, strategic advisory, foresight, research and data to help organisations, institutions and businesses make sense of complex environments, strengthen the systems they depend on and turn evidence into decisions built for the long term.',
     },
     intro: {
       label: 'Complex challenges need more than isolated solutions.',

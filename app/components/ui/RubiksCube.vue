@@ -1,114 +1,39 @@
 <script setup lang="ts">
-import { Camera, Geometry, Mesh, Program, Quat, Renderer, Transform, Vec3 } from 'ogl'
+import { Quat, Transform, Vec3 } from 'ogl'
 
 /**
- * A 3×3×3 twisting cube: every outward face is flat white and every inward face is the
- * site blue, so the blue showing through the gaps (and inside a turning layer) draws it.
+ * A 3×3×3 twisting cube drawn on a 2D canvas: every visible face is white with a blue
+ * stroke of one fixed screen width, so every line matches the site's hairlines.
  * Outer layers turn one at a time like a real puzzle, at random intervals; every few
  * seconds the whole cube also tumbles a quarter turn. It floats and leans toward the
  * cursor with a lag. Decorative only.
- * Reduced motion: renders a still cube. No WebGL: renders nothing.
+ * Reduced motion: renders a still cube.
  */
 const props = withDefaults(defineProps<{
   /** seconds per quarter turn (varies ±25%) */
   turnDuration?: number
   /** longest pause between layer turns, seconds (the actual pause is random) */
   maxPause?: number
-}>(), { turnDuration: 0.6, maxPause: 2.6 })
+  /** stroke width in CSS px */
+  stroke?: number
+  /** space between pieces, as a fraction of a piece */
+  gap?: number
+}>(), { turnDuration: 0.6, maxPause: 2.6, stroke: 1, gap: 0.14 })
 
 const el = ref<HTMLCanvasElement | null>(null)
-
-const vertex = /* glsl */ `
-attribute vec3 position;
-attribute vec3 normal;
-attribute vec2 uv;
-attribute float style;
-attribute vec4 edge; // which of this face's sides lie on the cube's outer edge (u-, u+, v-, v+)
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-uniform mat3 normalMatrix;
-varying vec3 vN;
-varying vec2 vUv;
-varying float vStyle;
-varying vec4 vEdge;
-void main() {
-  vEdge = edge;
-  vN = normalize(normalMatrix * normal);
-  vUv = uv;
-  vStyle = style;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}
-`
-
-// style: 0 = outward face (flat white), -1 = inward face (flat blue: shows in the gaps
-// and inside a turning layer, which is what outlines the pieces on the white page)
-const fragment = /* glsl */ `
-precision highp float;
-uniform vec3 uWhite;
-uniform vec3 uBlue;
-varying float vStyle;
-varying vec2 vUv;
-varying vec4 vEdge;
-
-void main() {
-  if (vStyle < -0.5) { gl_FragColor = vec4(uBlue, 1.0); return; }
-  // Blue line along the cube's outer edges, about as wide as a gap between pieces
-  const float w = 0.045;
-  float line = max(
-    max(vEdge.x * step(vUv.x, w), vEdge.y * step(1.0 - w, vUv.x)),
-    max(vEdge.z * step(vUv.y, w), vEdge.w * step(1.0 - w, vUv.y))
-  );
-  gl_FragColor = vec4(mix(uWhite, uBlue, line), 1.0);
-}
-`
 
 const AXES = { x: new Vec3(1, 0, 0), y: new Vec3(0, 1, 0), z: new Vec3(0, 0, 1) } as const
 type Axis = keyof typeof AXES
 const IDX: Record<Axis, 0 | 1 | 2> = { x: 0, y: 1, z: 2 }
 
-function cubieGeometry(gl: Renderer['gl'], cp: [number, number, number]) {
-  const h = 0.47 // gaps wide enough for the blue inner faces to draw clean lines
-  const position: number[] = []
-  const normal: number[] = []
-  const uv: number[] = []
-  const style: number[] = []
-  const edge: number[] = []
-  const index: number[] = []
-  const faces: Array<{ n: [number, number, number], u: [number, number, number], v: [number, number, number] }> = [
-    { n: [1, 0, 0], u: [0, 0, -1], v: [0, 1, 0] },
-    { n: [-1, 0, 0], u: [0, 0, 1], v: [0, 1, 0] },
-    { n: [0, 1, 0], u: [1, 0, 0], v: [0, 0, -1] },
-    { n: [0, -1, 0], u: [1, 0, 0], v: [0, 0, 1] },
-    { n: [0, 0, 1], u: [1, 0, 0], v: [0, 1, 0] },
-    { n: [0, 0, -1], u: [-1, 0, 0], v: [0, 1, 0] },
-  ]
-  for (const { n, u, v } of faces) {
-    const outer = n[0] * cp[0] + n[1] * cp[1] + n[2] * cp[2] === 1
-    const st = outer ? 0 : -1
-    // A side of an outer face is on the cube's edge when this piece is at the extreme
-    // in that direction. Turns preserve this, so the flags never need updating.
-    const du = u[0] * cp[0] + u[1] * cp[1] + u[2] * cp[2]
-    const dv = v[0] * cp[0] + v[1] * cp[1] + v[2] * cp[2]
-    const flags = outer ? [du === -1 ? 1 : 0, du === 1 ? 1 : 0, dv === -1 ? 1 : 0, dv === 1 ? 1 : 0] : [0, 0, 0, 0]
-    const base = position.length / 3
-    for (const [a, b] of [[-1, -1], [1, -1], [1, 1], [-1, 1]] as const) {
-      for (let i = 0; i < 3; i++) position.push((n[i]! + a * u[i]! + b * v[i]!) * h)
-      normal.push(...n)
-      uv.push((a + 1) / 2, (b + 1) / 2)
-      style.push(st)
-      edge.push(...flags)
-    }
-    index.push(base, base + 1, base + 2, base, base + 2, base + 3)
-  }
-  return new Geometry(gl, {
-    position: { size: 3, data: new Float32Array(position) },
-    normal: { size: 3, data: new Float32Array(normal) },
-    uv: { size: 2, data: new Float32Array(uv) },
-    style: { size: 1, data: new Float32Array(style) },
-    edge: { size: 4, data: new Float32Array(edge) },
-    index: { data: new Uint16Array(index) },
-  })
-}
+// One cubie: 8 corners of a unit cube and its 6 faces (corner indices, in order round the face)
+const H = (1 - props.gap) / 2
+const CORNERS = [-1, 1].flatMap(x => [-1, 1].flatMap(y => [-1, 1].map(z => new Vec3(x * H, y * H, z * H))))
+const FACES = [
+  [0, 1, 3, 2], [4, 6, 7, 5], // x- / x+
+  [0, 4, 5, 1], [2, 3, 7, 6], // y- / y+
+  [0, 2, 6, 4], [1, 5, 7, 3], // z- / z+
+]
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
 
@@ -117,47 +42,29 @@ let cleanup: (() => void) | undefined
 onMounted(() => {
   const canvas = el.value
   if (!canvas) return
-  let renderer: Renderer
-  try {
-    renderer = new Renderer({ canvas, alpha: true, antialias: true, dpr: Math.min(window.devicePixelRatio || 1, 2) })
-  }
-  catch {
-    return // no WebGL: the hero still works without the cube
-  }
-  const gl = renderer.gl
-  gl.clearColor(0, 0, 0, 0)
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const INK = getComputedStyle(document.documentElement).getPropertyValue('--color-ink').trim() || '#1a26ae'
 
-  const camera = new Camera(gl, { fov: 28 })
-  // Closest distance at which the cube's bounding sphere (radius ≈ 2.57, plus the bob)
-  // still fits the 28° view, so no tumble angle can ever clip it: 2.64 / sin(14°) ≈ 10.9
+  // Camera on +z looking at the origin, 28° vertical field of view.
+  // Closest distance at which the cube's bounding sphere (radius ≈ 2.6, plus the bob)
+  // still fits the view, so no tumble angle can ever clip it: 2.64 / sin(14°) ≈ 10.9
+  const FOV = 28 * Math.PI / 180
   const CAM_Z = 10.9
-  camera.position.set(0, 0, CAM_Z)
+  let camZ = CAM_Z
+  let W = 0
+  let Hh = 0
 
-  const scene = new Transform()
   const cube = new Transform()
-  cube.setParent(scene)
 
-  const rgb = (hex: string) => {
-    const n = Number.parseInt(hex.slice(1), 16)
-    return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
-  }
-  const program = new Program(gl, {
-    vertex,
-    fragment,
-    cullFace: false,
-    uniforms: {
-      uWhite: { value: rgb('#FFFFFF') }, // same white as the hero type
-      uBlue: { value: rgb('#1A26AE') }, // the site blue
-    },
-  })
-
-  interface Cubie { mesh: Mesh, pos: Vec3, q: Quat }
+  interface Cubie { mesh: Transform, pos: Vec3, q: Quat }
   const cubies: Cubie[] = []
   for (let x = -1; x <= 1; x++) {
     for (let y = -1; y <= 1; y++) {
       for (let z = -1; z <= 1; z++) {
-        if (!x && !y && !z) continue
-        const mesh = new Mesh(gl, { geometry: cubieGeometry(gl, [x, y, z]), program })
+        if (!x && !y && !z) continue // the centre piece is never visible
+        const mesh = new Transform()
         mesh.setParent(cube)
         mesh.position.set(x, y, z)
         cubies.push({ mesh, pos: new Vec3(x, y, z), q: new Quat() })
@@ -219,20 +126,20 @@ onMounted(() => {
   if (finePointer) window.addEventListener('pointermove', onMove, { passive: true })
 
   // --- Size / loop ---------------------------------------------------------
-  // Measure the wrapper: OGL writes an inline px size onto the canvas itself
   const box = canvas.parentElement ?? canvas
   const resize = () => {
-    const w = box.clientWidth
-    const h = box.clientHeight
-    if (!w || !h) return
-    renderer.setSize(w, h)
-    camera.perspective({ aspect: w / h })
+    W = box.clientWidth
+    Hh = box.clientHeight
+    if (!W || !Hh) return
+    canvas.width = Math.round(W * dpr)
+    canvas.height = Math.round(Hh * dpr)
+    canvas.style.width = `${W}px`
+    canvas.style.height = `${Hh}px`
     // Fit by width too: in a tall, narrow box pull the camera back so the cube never clips
-    camera.position.z = w / h < 1 ? CAM_Z / (w / h) : CAM_Z
+    camZ = W / Hh < 1 ? CAM_Z / (W / Hh) : CAM_Z
+    if (still) draw()
   }
   const ro = new ResizeObserver(resize)
-  ro.observe(box)
-  resize()
 
   // --- Whole-cube tumbles at random intervals --------------------------------
   const spin = { x: 0, y: 0, fromX: 0, fromY: 0, toX: 0, toY: 0, start: 0, dur: 1.6, next: 3 + Math.random() * 3 }
@@ -296,7 +203,7 @@ onMounted(() => {
     cube.rotation.z = 0.22
     cube.position.y = Math.sin(t * 0.8) * 0.07
 
-    renderer.render({ scene, camera })
+    draw()
     if (!still && visible) raf = requestAnimationFrame(frame)
   }
 
@@ -319,6 +226,76 @@ onMounted(() => {
   }
   document.addEventListener('visibilitychange', onVis)
 
+  // --- Draw ----------------------------------------------------------------
+  // Pieces are separate cubes with gaps between them, so each is painted whole (its
+  // camera-facing sides) from farthest to nearest. During a turn the farther of the two
+  // groups (turning layer / the rest) is painted first.
+  const tmp = new Vec3()
+  const pts: Array<[number, number, number]> = Array.from({ length: 8 }, () => [0, 0, 0])
+
+  function viewZ(c: Cubie) {
+    return (c.mesh.worldMatrix[14] ?? 0) - camZ
+  }
+
+  function drawCubie(c: Cubie, focal: number) {
+    if (!ctx) return
+    CORNERS.forEach((p, i) => {
+      tmp.copy(p).applyMatrix4(c.mesh.worldMatrix)
+      const pt = pts[i]!
+      pt[0] = tmp.x
+      pt[1] = tmp.y
+      pt[2] = tmp.z - camZ
+    })
+    const m = c.mesh.worldMatrix
+    const cx = m[12] ?? 0
+    const cy = m[13] ?? 0
+    const cz = (m[14] ?? 0) - camZ
+    FACES.forEach((f) => {
+      // centre of the face; visible when its outward side faces the camera (view origin)
+      let fx = 0, fy = 0, fz = 0
+      for (const i of f) {
+        fx += pts[i]![0] / 4
+        fy += pts[i]![1] / 4
+        fz += pts[i]![2] / 4
+      }
+      if ((fx - cx) * -fx + (fy - cy) * -fy + (fz - cz) * -fz <= 0) return
+      ctx.beginPath()
+      f.forEach((i, k) => {
+        const p = pts[i]!
+        const sx = W / 2 + (p[0] / -p[2]) * focal
+        const sy = Hh / 2 - (p[1] / -p[2]) * focal
+        if (k) ctx.lineTo(sx, sy)
+        else ctx.moveTo(sx, sy)
+      })
+      ctx.closePath()
+      ctx.fill()
+      ctx.stroke()
+    })
+  }
+
+  function draw() {
+    if (!ctx || !W || !Hh) return
+    const focal = (Hh / 2) / Math.tan(FOV / 2)
+    cube.updateMatrixWorld(true)
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    ctx.clearRect(0, 0, W, Hh)
+    ctx.lineWidth = props.stroke
+    ctx.lineJoin = 'round'
+    ctx.strokeStyle = INK
+    ctx.fillStyle = '#ffffff'
+
+    const members = turn ? turn.members : []
+    const rest = turn ? cubies.filter(c => !members.includes(c)) : cubies
+    const mean = (list: Cubie[]) => list.reduce((s, c) => s + viewZ(c), 0) / (list.length || 1)
+    const groups = members.length && mean(members) < mean(rest) ? [members, rest] : [rest, members]
+    for (const g of groups) {
+      for (const c of [...g].sort((a, b) => viewZ(a) - viewZ(b))) drawCubie(c, focal)
+    }
+  }
+
+  ro.observe(box)
+  resize()
   frame()
 
   cleanup = () => {
@@ -327,7 +304,6 @@ onMounted(() => {
     ro.disconnect()
     document.removeEventListener('visibilitychange', onVis)
     window.removeEventListener('pointermove', onMove)
-    gl.getExtension('WEBGL_lose_context')?.loseContext()
   }
 })
 

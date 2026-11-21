@@ -1,74 +1,76 @@
 <script setup lang="ts">
-import { site } from '~~/data/site'
+import { site } from "~~/data/site";
 
-const why = site.home.why
-const total = why.pillars.length
-const index = ref(0)
-const dir = ref<1 | -1>(1)
-const pad = (n: number) => String(n).padStart(2, '0')
-
-function go(step: 1 | -1) {
-  dir.value = step
-  index.value = (index.value + step + total) % total
-}
-const current = computed(() => why.pillars[index.value]!)
+const why = site.home.why;
+const pad = (n: number) => String(n).padStart(2, "0");
 </script>
 
 <template>
-  <section class="bg-white py-6 md:py-8" aria-labelledby="why-title">
-    <div class="shell">
-      <SectionMeta name="Why Savelle" />
-      <div class="grid-12 gap-y-14 pb-16 pt-14 md:pb-28 md:pt-20">
-        <div class="col-span-12 md:col-span-6">
-          <h2 id="why-title" v-reveal class="display-lg">{{ why.title }}</h2>
-          <p class="text-lead mt-8 max-w-2xl">{{ why.intro }}</p>
-        </div>
+	<!-- Blue band: white type, solid white 1px lines -->
+	<section
+		class="on-ink bg-ink py-6 text-white [--rule:var(--color-white)] md:py-8 lg:flex lg:min-h-svh lg:items-center lg:py-0"
+		aria-labelledby="why-title"
+	>
+		<div class="shell w-full">
+			<div class="grid-12 gap-y-14 pb-16 pt-16 md:pb-20 md:pt-20 lg:items-center lg:py-24">
+				<div class="col-span-12 lg:col-span-5">
+					<h2 id="why-title" v-reveal class="display-xl">
+						<span class="block">Why</span><span class="block">Savelle</span>
+					</h2>
+					<p class="label mt-8 max-w-[44em]">{{ why.intro }}</p>
+				</div>
 
-        <div
-          class="col-span-12 flex flex-col md:col-span-5 md:col-start-8"
-          role="group"
-          aria-roledescription="carousel"
-          aria-label="What sets Savelle apart"
-        >
-          <div class="rule-t flex items-center justify-between pt-3">
-            <p class="label" aria-hidden="true">{{ pad(index + 1) }}/{{ pad(total) }}</p>
-            <div class="flex gap-2">
-              <button type="button" class="slider-btn" aria-label="Previous point" @click="go(-1)">
-                <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg>
-              </button>
-              <button type="button" class="slider-btn" aria-label="Next point" @click="go(1)">
-                <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" /></svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="relative mt-10 min-h-[16rem] overflow-hidden md:min-h-[20rem]" aria-live="polite">
-            <Transition :name="dir === 1 ? 'slide-up' : 'slide-down'" mode="out-in">
-              <div :key="index" role="group" aria-roledescription="slide" :aria-label="`${index + 1} of ${total}`">
-                <h3 class="display-md">{{ current.title }}:</h3>
-                <p class="text-lead mt-6">{{ current.body }}</p>
-              </div>
-            </Transition>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+				<!-- Four square tiles, 2 × 2 from small tablets up, divided by 1px lines -->
+				<ul
+					class="why-grid col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:col-span-7 lg:col-start-6 lg:justify-self-end"
+					aria-label="What sets Savelle apart"
+				>
+					<li
+						v-for="(p, i) in why.pillars"
+						:key="p.title"
+						class="why-tile flex min-h-[15rem] flex-col justify-between gap-10 p-5 sm:aspect-square sm:min-h-0 md:p-7"
+					>
+						<p v-reveal class="text-lead" aria-hidden="true">{{ pad(i + 1) }}</p>
+						<div>
+							<h3 v-reveal class="display-md">{{ p.title }}</h3>
+							<p v-reveal="{ delay: 0.08 }" class="label mt-4 max-w-[30em]">
+								{{ p.body }}
+							</p>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</section>
 </template>
 
 <style scoped>
-.slider-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 3rem; height: 3rem; border-radius: 9999px;
-  border: 1px solid var(--color-ink);
-  transition: background-color .3s, color .3s;
+/* Side by side (lg+): the grid is a square sized to the screen's height (less room
+   for the fixed header above and the same below), so the whole section fits one
+   screen. It never shrinks below 34rem, so on very short screens it may run past the fold. */
+@media (min-width: 1024px) {
+	.why-grid {
+		width: clamp(34rem, 100svh - 12rem, 100%);
+	}
 }
-.slider-btn:hover { background: var(--color-ink); color: var(--color-paper); }
-.slide-up-enter-active, .slide-up-leave-active, .slide-down-enter-active, .slide-down-leave-active {
-  transition: transform .5s var(--ease-out-expo), opacity .4s;
+
+/* Lines between tiles only (no outer frame), like a 2 × 2 sheet */
+.why-tile {
+	border-color: var(--rule);
 }
-.slide-up-enter-from { transform: translateY(40%); opacity: 0; }
-.slide-up-leave-to { transform: translateY(-40%); opacity: 0; }
-.slide-down-enter-from { transform: translateY(-40%); opacity: 0; }
-.slide-down-leave-to { transform: translateY(40%); opacity: 0; }
+/* Phones: one column, a line under every tile but the last */
+.why-tile:not(:last-child) {
+	border-bottom-width: 1px;
+}
+@media (min-width: 640px) {
+	.why-tile:not(:last-child) {
+		border-bottom-width: 0;
+	}
+	.why-tile:nth-child(-n + 2) {
+		border-bottom-width: 1px;
+	}
+	.why-tile:nth-child(odd) {
+		border-right-width: 1px;
+	}
+}
 </style>
