@@ -6,10 +6,10 @@
 @theme {
 	/* Brand colours */
 	--color-ink: #1a26ae; /* strong blue: text, backgrounds, halftone ink, buttons (8.7:1 on paper) */
-	--color-paper: #e8e6e1; /* off-white */
+	--color-paper: #ffffff; /* was off-white #e8e6e1; the palette is now blue + white only */
 	--color-white: #ffffff;
 	--color-rule-dark: rgb(26 38 174 / 0.2);
-	--color-rule-light: rgb(232 230 225 / 0.2);
+	--color-rule-light: rgb(255 255 255 / 0.2);
 
 	/* Type: swap for licensed fonts (PP Neue Montreal / GT America Mono) later */
 	--font-sans:

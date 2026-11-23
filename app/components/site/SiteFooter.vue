@@ -10,11 +10,12 @@ const tbc = (v: string) => v || (showDrafts ? '[TBC]' : '')
 <template>
   <footer class="on-ink relative z-[31] bg-ink text-paper">
     <div class="shell grid-12 gap-y-12 pb-6 pt-16 md:pt-24">
-      <div class="col-span-12 md:col-span-5">
-        <LogoMark class="w-[min(70vw,28rem)] text-white" title="Savelle Group Africa logo" />
+      <!-- Logo sits on its own row until lg; side by side it fills its column (max 28rem) instead of overflowing it -->
+      <div class="col-span-12 lg:col-span-5">
+        <LogoMark class="h-auto w-[min(70vw,28rem)] text-white lg:w-full lg:max-w-[28rem]" title="Savelle Group Africa logo" />
       </div>
 
-      <div class="col-span-12 grid grid-cols-2 gap-y-10 md:col-span-7 md:grid-cols-3">
+      <div class="col-span-12 grid grid-cols-2 gap-y-10 md:grid-cols-3 lg:col-span-7">
         <nav aria-label="Footer" class="rule-l pl-4">
           <p class="label mb-4 text-white">Navigate</p>
           <ul class="flex flex-col gap-1.5">

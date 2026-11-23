@@ -43,8 +43,8 @@ const props = withDefaults(defineProps<{
 })
 
 const TONES = {
-  light: { ink: '#1A26AE', paper: '#E8E6E1' },
-  dark: { ink: '#E8E6E1', paper: '#1A26AE' },
+  light: { ink: '#1A26AE', paper: '#FFFFFF' },
+  dark: { ink: '#FFFFFF', paper: '#1A26AE' },
   white: { ink: '#1A26AE', paper: '#FFFFFF' },
   // Blue dots on a ~40% tint of the same blue, so white type stays readable on top
   tint: { ink: '#1A26AE', paper: '#9EA3DB' },

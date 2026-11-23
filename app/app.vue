@@ -72,14 +72,14 @@ onMounted(() => {
     <SiteFooter />
     <StairsOverlay />
 
-    <!-- Duotone filter for the non-WebGL image fallback (ink #1A26AE → paper #E8E6E1) -->
+    <!-- Duotone filter for the non-WebGL image fallback (ink #1A26AE → paper #FFFFFF) -->
     <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
       <filter id="sga-duotone" color-interpolation-filters="sRGB">
         <feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0" />
         <feComponentTransfer>
-          <feFuncR type="table" tableValues="0.1020 0.9098" />
-          <feFuncG type="table" tableValues="0.1490 0.9020" />
-          <feFuncB type="table" tableValues="0.6824 0.8824" />
+          <feFuncR type="table" tableValues="0.1020 1" />
+          <feFuncG type="table" tableValues="0.1490 1" />
+          <feFuncB type="table" tableValues="0.6824 1" />
         </feComponentTransfer>
       </filter>
     </svg>

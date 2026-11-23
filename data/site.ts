@@ -105,6 +105,14 @@ export const site = {
   // 'hidden'     → hide the section.
   featuredWork: 'auto' as 'auto' | 'intro-only' | 'hidden',
 
+  // Where each case study's `country` is pinned on the home page map (approximate centre
+  // of the country, not a city, so no location claim beyond the country itself).
+  workCountries: {
+    nigeria: { name: 'Nigeria', lat: 9.1, lon: 8.7 },
+    kenya: { name: 'Kenya', lat: 0.4, lon: 37.9 },
+    benin: { name: 'Benin', lat: 9.3, lon: 2.3 },
+  } as Record<string, { name: string, lat: number, lon: number }>,
+
   // Image slots (no photography supplied yet → procedural halftones)
   images: {
     capabilities: [
@@ -197,6 +205,8 @@ export const site = {
       ],
     },
     featuredWork: {
+      // Small mono details around the globe (labels only, no new claims)
+      eyebrow: 'Selected engagements',
       title: 'Evidence that informs action.',
       intro:
         'Our engagements span organisational growth, resource mobilisation, digital transformation and institutional development. Explore selected examples of how we help organisations clarify challenges, strengthen their approach and build the foundations for progress.',

@@ -222,7 +222,7 @@ class HalftoneEngine {
       u: {
         dot: opts.dot ?? 8,
         ink: opts.ink ?? hexToRgb('#1A26AE'),
-        paper: opts.paper ?? hexToRgb('#E8E6E1'),
+        paper: opts.paper ?? hexToRgb('#FFFFFF'),
         contrast: opts.contrast ?? 1.15,
         reveal: 0,
         hover: 0,

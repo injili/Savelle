@@ -11,4 +11,5 @@ strategicFocus: "The framework was designed around a fundraising ambition of mor
 whatThisDemonstrates: "Savelle's approach to resource mobilisation connects organisational strategy, evidence of need, funding positioning and relationship management into a more deliberate process."
 relatedService: "organisational-development"
 pattern: "network"
+country: "nigeria"
 ---

@@ -42,6 +42,8 @@ export default defineContentConfig({
         image: z.string().optional(),
         imageAlt: z.string().optional(),
         pattern: z.enum(['flow', 'contour', 'network', 'orbits', 'ribbon']).default('network'),
+        // Where the engagement took place: the home page draws this country as a 3D map.
+        country: z.enum(['nigeria', 'kenya', 'benin']).optional(),
       }),
     }),
 
